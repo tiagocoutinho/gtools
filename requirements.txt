@@ -1,2 +1,3 @@
 six >= 1.10
 gevent >= 1.0
+treelib
