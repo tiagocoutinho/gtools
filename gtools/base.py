@@ -1,7 +1,9 @@
 #
 
 from __future__ import absolute_import
-__all__ = 'is_running', 'igreenlets', 'greenlets'
+
+__all__ = ('caller', 'icallees',  'callees', 'is_running',
+           'igreenlets', 'greenlets')
 
 import gc
 
@@ -29,6 +31,20 @@ def greenlet_tag(g):
     else:
         tag += ' dead={0}'.format(g.dead)
     return tag
+
+
+def caller(g):
+    return g._caller_ if hasattr(g, '_caller_') else g.parent
+
+
+def icallees(g):
+    for gl in igreenlets():
+        if caller(gl) == g:
+            yield gl
+
+
+def callees(g):
+    return list(icallees(g))
 
 
 def is_running(g):
