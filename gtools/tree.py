@@ -1,9 +1,9 @@
+from __future__ import absolute_import
 
 __all__ = 'Tree',
 
-import weakref
-
 import treelib
+import greenlet
 
 from . import base
 
@@ -28,6 +28,7 @@ def Tree(greenlets=None):
         if tree.contains(gid):
             return
         tag = base.greenlet_tag(g)
+
         if g.parent is None:
             parent = '__root__'
         else:

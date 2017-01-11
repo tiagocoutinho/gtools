@@ -1,5 +1,6 @@
 #
 
+from __future__ import absolute_import
 __all__ = 'is_running', 'igreenlets', 'greenlets'
 
 import gc
