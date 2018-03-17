@@ -7,16 +7,18 @@
 
 from __future__ import absolute_import
 
-import gevent.greenlet
 
-from .greenlet import Greenlet
-
-def patch_all(gevent=True):
+def patch_all(gevent=True, **kwargs):
     if gevent:
         patch_gevent()
+    from gevent.monkey import patch_all
+    patch_all(**kwargs)
 
 
 def patch_gevent(greenlet=True):
+    import gevent.greenlet
+    from .greenlet import Greenlet
+
     if greenlet and gevent.Greenlet != Greenlet:
         gevent.Greenlet = Greenlet
         gevent.greenlet.Greenlet = Greenlet
