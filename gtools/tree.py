@@ -36,6 +36,9 @@ class GreenletTreeTag(object):
             tag += 'dead' if g.dead else 'running'
         return tag
 
+    def __lt__(self, other):
+        return repr(self) < repr(other)
+
 
 def Tree(greenlets=None):
     """
