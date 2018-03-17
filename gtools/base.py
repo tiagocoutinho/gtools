@@ -7,7 +7,7 @@
 
 from __future__ import absolute_import
 
-__all__ = ('Greenlet', 'caller', 'callees_gen',  'callees',
+__all__ = ('Greenlet', 'spawn', 'caller', 'callees_gen',  'callees',
            'is_running', 'greenlets_gen', 'greenlets',
            'all_greenlets_gen', 'all_greenlets')
 
@@ -15,6 +15,8 @@ import gevent
 import greenlet
 
 from .greenlet import _greenlets, Greenlet
+
+spawn = Greenlet.spawn
 
 
 def greenlet_id(g):
