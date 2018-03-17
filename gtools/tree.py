@@ -40,7 +40,7 @@ class GreenletTreeTag(object):
         return repr(self) < repr(other)
 
 
-def Tree(greenlets=None):
+def Tree(greenlets=None, all=False):
     """
     Create a class:`treelib.Tree` with nodes corresponding to the greenlets.
 
@@ -48,8 +48,8 @@ def Tree(greenlets=None):
     :class:`gtools.greenlet.Greenlet` or if the gevent module has been
     monkey patched with func:`gtools.monkey`.
 
-    If you want to include all gevent greenlets call with
-    `Tree(greenlets=gtools.all_greenlets())`.
+    If you want to include non gtools greenlets call with
+    `Tree(all=True)`.
 
     The tree starts with a spurious root node whoose goal is just to have
     a common node around greenlets started on different threads.
@@ -57,6 +57,8 @@ def Tree(greenlets=None):
     Keyword Args:
         greenlets: a greenlet or a sequence of greenlets. None means find all
                    existing greenlet objects [default: None].
+        all: when greenlets is None, if all is True, it will also search for
+             non gtools greenlets
     Returns:
         treelib.Tree: a tree object
     """
@@ -76,7 +78,10 @@ def Tree(greenlets=None):
         tree.create_node(tag=tag, identifier=gid, parent=parent)
 
     if greenlets is None:
-        greenlets = base.greenlets_gen()
+        if all:
+            greenlets = base.all_greenlets_gen()
+        else:
+            greenlets = base.greenlets_gen()
     elif isinstance(greenlets, greenlet.greenlet):
         greenlets = greenlets,
 
