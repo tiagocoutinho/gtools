@@ -1,46 +1,75 @@
-import gc
-import gevent
+# -*- coding: utf-8 -*-
+#
+# This file is part of the gtools project
+#
+# Copyright (c) 2017 Tiago Coutinho
+# Distributed under the MIT License. See LICENSE for more info.
+
+"""\
+This example demonstrates how to display greenlet information in a tree
+from greenlets started in different threads
+"""
+
+from gtools.monkey import patch_all
+patch_all()
+
 import threading
+import gevent
 
 from gtools.tree import Tree
 
-N1 = 2
-N2 = 4
 
-def ptree(message, greenlets=None):
+def ptree(message, tree=None):
     print(80*'-')
     print(message)
-    print(Tree(greenlets=greenlets))
+    if tree is None:
+        tree = Tree()
+    print(tree)
+    return tree
 
-def loop(name, n):
-    for i in range(n):
-        gevent.sleep(1)
 
-ptree('Gevent tree before start:')
+def inner_loop(name):
+    gevent.sleep(1)
 
-gs = [gevent.spawn(loop, 'loop greenlet %d' %i, n=N1)
-      for i in range(10)]
 
-ptree('Gevent tree after greenlets loop start:')
+def outer_loop(name):
+    gevent.spawn(inner_loop, name).join()
 
-def go(name, n):
-    gevent.spawn(loop, name, n).join()
-    h = gevent.get_hub()
-    h.destroy(True)
 
-[threading.Thread(target=go, args=('loop thread %d' % i, N2)).start()
- for i in range(2)]
+def spawn_thread(target, i):
+    thread = threading.Thread(target=target, name='T%d' % i,
+                              args=('thread %d' % i,))
+    thread.start()
+    return thread
 
-ptree('Gevent tree after thread loop start:')
 
-print('Waiting ~2s for all greenlets loop to finish')
-gevent.joinall(gs)
-del gs
-ptree('Gevent tree after all greenlets loop finished:')
+def joinall_thread(threads):
+    map(threading.Thread.join, threads)
 
-print('Waiting ~2s for thread loop to finish')
-gevent.sleep(2)
-ptree('Gevent tree after thread loop finished:')
 
-gc.collect(2)
-ptree('Gevent tree after thread loop finished and gc:')
+def main():
+    print(__doc__)
+
+    gs = [gevent.spawn(outer_loop, 'greenlet %d' % i) for i in range(3)]
+    gevent.sleep()
+    ptree('Gevent tree after greenlets loop start:')
+
+    ts = [spawn_thread(outer_loop, i) for i in range(3)]
+
+    tree1 = ptree('Gevent tree after thread loop start:')
+
+    print('Waiting ~1s for all greenlets to finish')
+    gevent.joinall(gs)
+    joinall_thread(ts)
+    ptree('Gevent tree after all greenlets finished:', tree1)
+
+    del gs
+    del ts
+
+    ptree('Gevent tree after all greenlets finished and dereferenced:', tree1)
+
+    ptree('New gevent tree:')
+
+
+if __name__ == '__main__':
+    main()

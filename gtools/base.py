@@ -7,15 +7,14 @@
 
 from __future__ import absolute_import
 
-__all__ = ('caller', 'icallees',  'callees', 'is_running',
-           'igreenlets', 'greenlets')
-
-import gc
+__all__ = ('Greenlet', 'caller', 'callees_gen',  'callees',
+           'is_running', 'greenlets_gen', 'greenlets',
+           'all_greenlets_gen', 'all_greenlets')
 
 import gevent
 import greenlet
 
-from .greenlet import _greenlets
+from .greenlet import _greenlets, Greenlet
 
 
 def greenlet_id(g):
@@ -44,14 +43,14 @@ def caller(g):
     return _greenlets.get(g, g.parent)
 
 
-def icallees(g):
+def callees_gen(g):
     for gl in igreenlets():
         if caller(gl) == g:
             yield gl
 
 
 def callees(g):
-    return list(icallees(g))
+    return list(callees_gen(g))
 
 
 def is_running(g):
@@ -63,12 +62,23 @@ def is_running(g):
         return not g.dead
 
 
-def igreenlets(filter=None):
+def greenlets_gen(filter=None):
     for g in _greenlets:
         if filter is None or filter(g):
             yield g
 
 
 def greenlets(filter=None):
-    return list(igreenlets(filter=filter))
+    return list(greenlets_gen(filter=filter))
 
+
+def all_greenlets_gen(filter=None):
+    import gc
+    for g in gc.get_objects():
+        if isinstance(g, greenlet.greenlet):
+            if filter is None or filter(g):
+                yield g
+
+
+def all_greenlets(filter=None):
+    return list(all_greenlets_gen(filter=filter))

@@ -26,14 +26,11 @@ def ptree(message, tree=None):
     return tree
 
 
-def inner_loop(name):
-    gevent.sleep(1)
-
-
-def outer_loop(name):
-    task = gevent.spawn(inner_loop, name)
-    gevent.sleep(1)
-    task.join()
+def go(level):
+    if level > 0:
+        gevent.spawn(go, level-1).join()
+    else:
+        gevent.sleep(1)
 
 
 def main():
@@ -41,18 +38,18 @@ def main():
 
     ptree('Gevent tree before start:')
 
-    gs = { gevent.spawn(outer_loop, 'loop greenlet %d' %i) for i in range(3) }
+    top_task = gevent.spawn(go, 5)
     # the following is just to give time for the inner loop greenlets to spawn
-    gevent.sleep()
+    gevent.sleep(1e-6)
 
     tree1 = ptree('Gevent tree after greenlets loop started:')
 
-    gevent.joinall(gs)
+    top_task.join()
 
     ptree('Gevent tree after greenlets finished:', tree=tree1)
 
     # make sure there are no references to the greenlets
-    del gs
+    del top_task
 
     ptree('Gevent tree after greenlets finished and dereferenced:', tree=tree1)
 
