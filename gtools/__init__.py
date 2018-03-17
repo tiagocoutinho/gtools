@@ -7,14 +7,17 @@
 
 """gevent utilities library"""
 
-from gtools.base import *
+from . import version
 
-__version__ = '0.1.0'
-__description__ = 'gevent utilities library'
-__author__ = 'Tiago Coutinho'
-__author_email__ = 'coutinhotiago@gmail.com'
-__license__ = 'MIT'
-__url__ = 'https://github.com/tiagocoutinho/gtools'
-__download_url__ = 'http://pypi.python.org/pypi/gevent-tools'
-__platforms__ = ['Linux', 'Windows XP/Vista/7/8/10']
-__keywords__ = ['gevent', 'tools']
+__version__ = version.__version__
+__description__ = version.__description__
+__author__ = version.__author__
+__author_email__ = version.__author_email__
+__license__ = version.__license__
+__url__ = version.__url__
+__download_url__ = version.__download_url__
+__platforms__ = version.__platforms__
+__keywords__ = version.__keywords__
+del version
+
+from .base import *
