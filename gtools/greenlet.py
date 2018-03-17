@@ -15,9 +15,12 @@ import gevent
 
 _Greenlet = gevent.Greenlet
 
+_greenlets = weakref.WeakKeyDictionary()
+
 
 class Greenlet(_Greenlet):
 
     def __init__(self, *args, **kwargs):
+        g = gevent.getcurrent()
         super(Greenlet, self).__init__(*args, **kwargs)
-        self._caller_ = gevent.getcurrent()
+        _greenlets[self] = g

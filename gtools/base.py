@@ -15,6 +15,8 @@ import gc
 import gevent
 import greenlet
 
+from .greenlet import _greenlets
+
 
 def greenlet_id(g):
     return id(g)
@@ -39,7 +41,7 @@ def greenlet_tag(g):
 
 
 def caller(g):
-    return g._caller_ if hasattr(g, '_caller_') else g.parent
+    return _greenlets.get(g, g.parent)
 
 
 def icallees(g):
@@ -62,10 +64,9 @@ def is_running(g):
 
 
 def igreenlets(filter=None):
-    for g in gc.get_objects():
-        if isinstance(g, greenlet.greenlet):
-            if filter is None or filter(g):
-                yield g
+    for g in _greenlets:
+        if filter is None or filter(g):
+            yield g
 
 
 def greenlets(filter=None):

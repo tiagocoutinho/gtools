@@ -29,6 +29,6 @@ def patch_gevent(greenlet=True):
 
 
 def patch_pdb():
-    from gevent.monkey import patch_module
-    from .pdb import Pdb
-    patch_module('pdb', items=dict(Pdb=Pdb))
+    import pdb as _pdb
+    from . import pdb
+    _pdb.Pdb = pdb.Pdb

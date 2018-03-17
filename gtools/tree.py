@@ -9,10 +9,32 @@ from __future__ import absolute_import
 
 __all__ = 'Tree', 'CallerTree'
 
+import weakref
+
 import treelib
+import gevent
 import greenlet
 
 from . import base
+
+
+class GreenletTreeTag(object):
+    def __init__(self, greenlet):
+        self._prefix = repr(greenlet) + ' status='
+        self._greenlet = weakref.ref(greenlet)
+
+    def __repr__(self):
+        tag, g = self._prefix, self._greenlet()
+        if g is None:
+            tag += 'dead, disappeared'
+        elif isinstance(g, gevent.Greenlet):
+            if g.ready():
+                tag += 'finished ' + ('successfully' if g.successful() else 'with error')
+            else:
+                tag += 'running' if g else 'not started yet'
+        else:
+            tag += 'dead' if g.dead else 'running'
+        return tag
 
 
 def Tree(greenlets=None):
@@ -34,7 +56,7 @@ def Tree(greenlets=None):
         gid = base.greenlet_id(g)
         if tree.contains(gid):
             return
-        tag = base.greenlet_tag(g)
+        tag = GreenletTreeTag(g)
 
         if g.parent is None:
             parent = '__root__'
@@ -79,7 +101,7 @@ def CallerTree(greenlets=None):
         gid = base.greenlet_id(g)
         if tree.contains(gid):
             return
-        tag = base.greenlet_tag(g)
+        tag = GreenletTreeTag(g)
 
         caller = base.caller(g)
 
