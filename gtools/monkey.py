@@ -8,9 +8,11 @@
 from __future__ import absolute_import
 
 
-def patch_all(gevent=True, **kwargs):
+def patch_all(gevent=True, pdb=True, **kwargs):
     if gevent:
         patch_gevent()
+    if pdb:
+        patch_pdb()
     from gevent.monkey import patch_all
     patch_all(**kwargs)
 
@@ -24,3 +26,9 @@ def patch_gevent(greenlet=True):
         gevent.greenlet.Greenlet = Greenlet
         gevent.spawn = Greenlet.spawn
         gevent.spawn_later = Greenlet.spawn_later
+
+
+def patch_pdb():
+    from gevent.monkey import patch_module
+    from .pdb import Pdb
+    patch_module('pdb', items=dict(Pdb=Pdb))
