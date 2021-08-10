@@ -8,7 +8,6 @@
 from setuptools import setup, find_packages
 
 import os
-import sys
 
 
 def main():
@@ -35,7 +34,8 @@ Topic :: Utilities
         install_requires=[
             'six>=1.10',
             'gevent>=1.0',
-            'treelib>=1.0'],
+            'treelib>=1.0',
+            'geventhttpclient>=1.4'],
         license=r['__license__'],
         classifiers=CLASSIFIERS,
         author=r['__author__'],
