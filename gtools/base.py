@@ -46,7 +46,7 @@ def caller(g):
 
 
 def callees_gen(g):
-    for gl in igreenlets():
+    for gl in greenlets_gen():
         if caller(gl) == g:
             yield gl
 
