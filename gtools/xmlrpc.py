@@ -5,22 +5,13 @@
 # Copyright (c) 2017 Tiago Coutinho
 # Distributed under the MIT License. See LICENSE for more info.
 
-import urllib
+import urllib.parse
 import xmlrpc.client
 
-import gevent.lock
 from geventhttpclient.httplib import HTTPConnection, HTTPSConnection
 
 
 class Transport(xmlrpc.client.Transport):
-
-    __lock = None
-
-    @property
-    def _lock(self):
-        if self.__lock is None:
-            self.__lock = gevent.lock.RLock()
-        return self.__lock
 
     def make_connection(self, host):
         #return an existing connection if possible.  This allows
@@ -31,10 +22,6 @@ class Transport(xmlrpc.client.Transport):
         chost, self._extra_headers, x509 = self.get_host_info(host)
         self._connection = host, HTTPConnection(chost)
         return self._connection[1]
-
-    def request(self, host, handler, request_body, verbose=False):
-        with self._lock:
-            return super().request(host, handler, request_body, verbose=verbose)
 
 
 class SafeTransport(xmlrpc.client.SafeTransport):
