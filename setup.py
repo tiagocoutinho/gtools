@@ -42,6 +42,7 @@ Topic :: Utilities
         author_email=r['__author_email__'],
         description=r['__description__'],
         long_description=open('README.md').read(),
+        long_description_content_type="text/markdown",
         url=r['__url__'],
         download_url=r['__download_url__'],
         platforms=r['__platforms__'],
